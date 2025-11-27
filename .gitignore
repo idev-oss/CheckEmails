@@ -1,0 +1,118 @@
+## Visual Studio / Rider standard ignore rules
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+[Rr]eleases*/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+x64/
+x86/
+bld/
+[Bb]uild/
+[Bb]in/
+bin/
+[Oo]bj/
+obj/
+[Ll]og/
+[Ll]ogs/
+[Ll]og*.txt
+app.publish/
+publish/
+out/
+Generated\ Files/
+
+# Visual Studio cache/options directories
+.vs/
+.ipch/
+*.aps
+*.ncb
+*.opendb
+*.VC.db
+*.VC.opendb
+*.pidb
+*.svclog
+*.pdb
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# JetBrains Rider / ReSharper
+.idea/
+.junie/
+*.sln.iml
+/.run/
+riderModule.iml
+/_ReSharper.Caches/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Unit test results
+[Tt]est[Rr]esult*/
+[Tt]est[Rr]esults/
+*.trx
+*.testsettings
+*.testsuite
+*.TestResult.xml
+*.coverage
+*.coveragexml
+
+# NuGet
+/packages/
+**/packages/*
+!**/packages/build/
+!**/packages/build/**/*
+!**/packages/repositories.config
+*.nupkg
+*.snupkg
+.nuget/
+NuGet.exe
+
+# Azure build/publish
+csx/
+*.build.csdef
+clientbin/
+[Bb]in/**/PublishProfiles/
+
+# Entity Framework
+*.dbmdl
+*.bak
+*.ldf
+*.mdf
+
+# Visual Studio extension caches
+*.cache
+*.opendb
+
+# IIS Express
+.vs/*/config/applicationhost.config
+
+# Others
+[Aa]pp[Rr]esources/
+*.tlog
+*.lastcodeanalysissucceeded
+*.lastcodeanalysisfailed
+*.CodeAnalysisLog.xml
+*.CodeAnalysisIssues.json
+**/*.ipdb
+*.obj
