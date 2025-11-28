@@ -75,48 +75,48 @@ Each release includes platform-specific ZIP archives along with integrity and si
 - `checkemails-<TAG>-<RID>.zip.sig` — signature
 - `checkemails-<TAG>-<RID>.zip.pem` — signing certificate
 
-Replace `<TAG>` with the release tag (for example, `v1.0.0`) and `<RID>` with the runtime ID (`win-x64`, `linux-x64`, `osx-arm64`).
+Replace `<TAG>` with the release tag (for example, `v1.0.1`) and `<RID>` with the runtime ID (`win-x64`, `linux-x64`, `osx-arm64`).
 
 1) Verify SHA256 checksum (Linux/macOS):
 
 ```bash
-sha256sum -c checkemails-v1.0.0-linux-x64.zip.sha256
+sha256sum -c checkemails-v1.0.1-linux-x64.zip.sha256
 # or, if your shell doesn't support -c:
-sha256sum checkemails-v1.0.0-linux-x64.zip
+sha256sum checkemails-v1.0.1-linux-x64.zip
 ```
 
 macOS alternative:
 
 ```bash
-shasum -a 256 checkemails-v1.0.0-osx-arm64.zip
+shasum -a 256 checkemails-v1.0.1-osx-arm64.zip
 ```
 
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\checkemails-v1.0.0-win-x64.zip -Algorithm SHA256 | Format-List
+Get-FileHash .\checkemails-v1.0.1-win-x64.zip -Algorithm SHA256 | Format-List
 # Compare the hash with the content of .sha256 file
-Get-Content .\checkemails-v1.0.0-win-x64.zip.sha256
+Get-Content .\checkemails-v1.0.1-win-x64.zip.sha256
 ```
 
 2) Verify signature with Cosign (any OS, requires cosign to be installed):
 
 ```bash
 cosign verify-blob \
-  --certificate checkemails-v1.0.0-linux-x64.zip.pem \
-  --signature   checkemails-v1.0.0-linux-x64.zip.sig \
-  checkemails-v1.0.0-linux-x64.zip
+  --certificate checkemails-v1.0.1-linux-x64.zip.pem \
+  --signature   checkemails-v1.0.1-linux-x64.zip.sig \
+  checkemails-v1.0.1-linux-x64.zip
 ```
 
 Optional strict verification:
 
 ```bash
 cosign verify-blob \
-  --certificate checkemails-v1.0.0-linux-x64.zip.pem \
-  --signature   checkemails-v1.0.0-linux-x64.zip.sig \
-  --certificate-identity "https://github.com/idev-oss/CheckEmails/.github/workflows/release-aot.yml@refs/tags/v1.0.0" \
+  --certificate checkemails-v1.0.1-linux-x64.zip.pem \
+  --signature   checkemails-v1.0.1-linux-x64.zip.sig \
+  --certificate-identity "https://github.com/idev-oss/CheckEmails/.github/workflows/release-aot.yml@refs/tags/v1.0.1" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  checkemails-v1.0.0-linux-x64.zip
+  checkemails-v1.0.1-linux-x64.zip
 ```
 
 Successful verification confirms the archive was signed by this repository's GitHub Actions workflow via OIDC (keyless).
@@ -268,48 +268,48 @@ The list is automatically downloaded and cached. Use `-r` or `--refresh-disposab
 - `checkemails-<TAG>-<RID>.zip.sig` — подпись
 - `checkemails-<TAG>-<RID>.zip.pem` — сертификат подписи
 
-Замените `<TAG>` на тег релиза (например, `v1.0.0`), а `<RID>` на идентификатор платформы (`win-x64`, `linux-x64`, `osx-arm64`).
+Замените `<TAG>` на тег релиза (например, `v1.0.1`), а `<RID>` на идентификатор платформы (`win-x64`, `linux-x64`, `osx-arm64`).
 
 1) Проверка SHA256 (Linux/macOS):
 
 ```bash
-sha256sum -c checkemails-v1.0.0-linux-x64.zip.sha256
+sha256sum -c checkemails-v1.0.1-linux-x64.zip.sha256
 # или если оболочка не поддерживает -c:
-sha256sum checkemails-v1.0.0-linux-x64.zip
+sha256sum checkemails-v1.0.1-linux-x64.zip
 ```
 
 Альтернатива для macOS:
 
 ```bash
-shasum -a 256 checkemails-v1.0.0-osx-arm64.zip
+shasum -a 256 checkemails-v1.0.1-osx-arm64.zip
 ```
 
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\checkemails-v1.0.0-win-x64.zip -Algorithm SHA256 | Format-List
+Get-FileHash .\checkemails-v1.0.1-win-x64.zip -Algorithm SHA256 | Format-List
 # Сравните хеш со строкой в файле .sha256
-Get-Content .\checkemails-v1.0.0-win-x64.zip.sha256
+Get-Content .\checkemails-v1.0.1-win-x64.zip.sha256
 ```
 
 2) Проверка подписи Cosign (на любой ОС, требуется установленный cosign):
 
 ```bash
 cosign verify-blob \
-  --certificate checkemails-v1.0.0-linux-x64.zip.pem \
-  --signature   checkemails-v1.0.0-linux-x64.zip.sig \
-  checkemails-v1.0.0-linux-x64.zip
+  --certificate checkemails-v1.0.1-linux-x64.zip.pem \
+  --signature   checkemails-v1.0.1-linux-x64.zip.sig \
+  checkemails-v1.0.1-linux-x64.zip
 ```
 
 Более строгая проверка:
 
 ```bash
 cosign verify-blob \
-  --certificate checkemails-v1.0.0-linux-x64.zip.pem \
-  --signature   checkemails-v1.0.0-linux-x64.zip.sig \
-  --certificate-identity "https://github.com/idev-oss/CheckEmails/.github/workflows/release-aot.yml@refs/tags/v1.0.0" \
+  --certificate checkemails-v1.0.1-linux-x64.zip.pem \
+  --signature   checkemails-v1.0.1-linux-x64.zip.sig \
+  --certificate-identity "https://github.com/idev-oss/CheckEmails/.github/workflows/release-aot.yml@refs/tags/v1.0.1" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  checkemails-v1.0.0-linux-x64.zip
+  checkemails-v1.0.1-linux-x64.zip
 ```
 
 Успешная проверка подтверждает, что архив подписан GitHub Actions этого репозитория через OIDC (без приватных ключей).
