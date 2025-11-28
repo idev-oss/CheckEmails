@@ -149,6 +149,9 @@ public sealed class DisposableEmailChecker(
         {
             _semaphore.Release();
         }
+
+        // Warm up domain cache to ensure custom list is loaded before validation starts
+        await GetDomainsAsync().ConfigureAwait(false);
     }
 
     public async Task RefreshAsync(bool forceDownload)
@@ -166,6 +169,9 @@ public sealed class DisposableEmailChecker(
         {
             _semaphore.Release();
         }
+
+        // Force loading the latest list into memory before validation begins
+        await GetDomainsAsync(forceDownload).ConfigureAwait(false);
     }
 
     public async Task DownloadRemoteListAsync()
@@ -176,8 +182,38 @@ public sealed class DisposableEmailChecker(
 
     private Task<FrozenSet<string>> GetDomainsAsync(bool forceDownload = false)
     {
-        _domainSetTask ??= ReloadDomainsUnsafeAsync(forceDownload);
-        return _domainSetTask;
+        var existingTask = _domainSetTask;
+        if (!forceDownload && existingTask is not null)
+        {
+            return existingTask;
+        }
+
+        return GetDomainsWithLockAsync(forceDownload);
+    }
+
+    private async Task<FrozenSet<string>> GetDomainsWithLockAsync(bool forceDownload)
+    {
+        Task<FrozenSet<string>> loadTask;
+
+        await _semaphore.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (!forceDownload && _domainSetTask is not null)
+            {
+                loadTask = _domainSetTask;
+            }
+            else
+            {
+                loadTask = ReloadDomainsUnsafeAsync(forceDownload);
+                _domainSetTask = loadTask;
+            }
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+
+        return await loadTask.ConfigureAwait(false);
     }
 
     private void ResetDomainCache(bool forceDownload = false)

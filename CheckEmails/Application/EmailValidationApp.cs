@@ -36,7 +36,7 @@ public sealed class EmailValidationApp(
             fileLoggerProvider.UseUtc = options.UseUtc;
             if (options.Debug)
             {
-                logger.LogInformation("Debug mode enabled.");
+                logger.LogInformation("Debug mode enabled");
             }
 
             logger.LogInformation("Run started. Args: {Args}",
@@ -71,20 +71,20 @@ public sealed class EmailValidationApp(
                 if (IsRefreshOnly(options))
                 {
                     await disposableSourceConfigurator.DownloadRemoteListAsync().ConfigureAwait(false);
-                    logger.LogInformation("Disposable domain list downloaded explicitly.");
+                    logger.LogInformation("Disposable domain list downloaded explicitly");
                     Console.WriteLine("Disposable domain list has been downloaded.");
                     return ExitCodes.Success;
                 }
 
                 await disposableSourceConfigurator.RefreshAsync(forceDownload: true).ConfigureAwait(false);
-                logger.LogInformation("Disposable domain list refreshed explicitly.");
+                logger.LogInformation("Disposable domain list refreshed explicitly");
                 Console.WriteLine("Disposable domain list has been refreshed.");
             }
 
             if (string.IsNullOrWhiteSpace(options.Email) && string.IsNullOrWhiteSpace(options.InputPath))
             {
                 const string inputRequiredMessage = "Input file path is missing. Use -i or --input.";
-                logger.LogWarning("Bulk validation aborted: input file path is missing.");
+                logger.LogWarning("Bulk validation aborted: input file path is missing");
                 await Console.Error.WriteLineAsync(inputRequiredMessage);
                 return ExitCodes.Error;
             }
@@ -98,13 +98,13 @@ public sealed class EmailValidationApp(
 
             return await RunBulkEmailValidationAsync(options, cancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException exception) when (cancellationToken.IsCancellationRequested)
         {
             var message = _resultsCleanedUpAfterCancellation
                 ? "Operation canceled by user. Temporary results have been removed."
                 : "Operation canceled by user.";
             Console.WriteLine(message);
-            logger.LogInformation("Execution canceled by user.");
+            logger.LogInformation(exception, "Execution canceled by user");
             return ExitCodes.Cancelled;
         }
     }
@@ -116,7 +116,7 @@ public sealed class EmailValidationApp(
         if (string.IsNullOrWhiteSpace(email))
         {
             Console.WriteLine("Result: invalid email (empty value)");
-            logger.LogInformation("Single-email mode: empty input provided.");
+            logger.LogInformation("Single-email mode: empty input provided");
             return ExitCodes.Success;
         }
 
@@ -159,23 +159,25 @@ public sealed class EmailValidationApp(
 
             EnsureDirectoryExists(paths.ResultsDirectory);
 
+            // Ensure disposable domains are downloaded and loaded before validation starts
+            await disposableSourceConfigurator.RefreshAsync(forceDownload: false).ConfigureAwait(false);
+
             Console.WriteLine("Starting email validation...");
-            logger.LogInformation(
-                "Bulk validation started. Input={Input}, ResultsDirectory={Results}, ValidOutput={Valid}, InvalidOutput={Invalid}, DisposableOutput={Disposable}, MissingMxOutput={MissingMx}",
-                paths.Input, paths.ResultsDirectory, paths.Valid, paths.Invalid, paths.InvalidDisposable,
-                paths.InvalidMissingMx);
 
             // Count exact number of emails without loading them into memory
             var emailCount = await EmailFileReader.CountAsync(paths.Input, cancellationToken).ConfigureAwait(false);
             if (emailCount == 0)
             {
-                logger.LogWarning("Input file is empty or contains no emails. Aborting.");
+                logger.LogWarning("Input file is empty or contains no emails. Aborting");
                 Console.WriteLine("Input file is empty. Nothing to do.");
                 return ExitCodes.Success;
             }
 
             Console.WriteLine($"Found {emailCount} email entries to validate.");
-            logger.LogInformation("Found {Count} emails to process (exact count).", emailCount);
+            logger.LogInformation(
+                "Bulk validation starting. Count={Count}, Input={Input}, ResultsDirectory={Results}, ValidOutput={Valid}, InvalidOutput={Invalid}, DisposableOutput={Disposable}, MissingMxOutput={MissingMx}",
+                emailCount, paths.Input, paths.ResultsDirectory, paths.Valid, paths.Invalid, paths.InvalidDisposable,
+                paths.InvalidMissingMx);
 
             var progress = new ValidationProgress(emailCount);
             using var progressBar = new ConsoleProgressBar(progress);
@@ -207,8 +209,7 @@ public sealed class EmailValidationApp(
             var emails = EmailFileReader.ReadAsync(paths.Input, cancellationToken);
             var logicalCores = Environment.ProcessorCount;
             var parallelism = Math.Max(1, logicalCores / 2);
-            logger.LogInformation("Using parallelism: {Parallelism} (logical cores: {Cores})", parallelism,
-                logicalCores);
+            logger.LogDebug("Using parallelism: {Parallelism} (logical cores: {Cores})", parallelism, logicalCores);
             var parallelOptions = new ParallelOptions
             {
                 MaxDegreeOfParallelism = parallelism,
@@ -251,7 +252,7 @@ public sealed class EmailValidationApp(
             }
 
             Console.WriteLine("Validation finished. Writing results to disk, please wait...");
-            logger.LogInformation("Validation processing complete. Flushing results to disk.");
+            logger.LogDebug("Validation processing complete. Flushing results to disk");
 
             validChannel.Writer.Complete();
             invalidChannel.Writer.Complete();
@@ -261,7 +262,7 @@ public sealed class EmailValidationApp(
             await Task.WhenAll(writerTasks).ConfigureAwait(false);
 
             Console.WriteLine("Finished writing results.");
-            logger.LogInformation("All result writers have finished.");
+            logger.LogDebug("All result writers have finished");
 
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -280,10 +281,10 @@ public sealed class EmailValidationApp(
             Console.WriteLine($"Log saved to: {logFileContext.FilePath}");
 
             logger.LogInformation(
-                "Bulk validation completed. Total={Total}, Valid={Valid}, Invalid={Invalid}, Disposable={Disposable}, MissingMx={MissingMx}, InvalidFormat={InvalidFormat}",
+                "Bulk validation completed. Total={Total}, Valid={Valid}, Invalid={Invalid}, Disposable={Disposable}, MissingMx={MissingMx}, InvalidFormat={InvalidFormat}, ResultsDirectory={ResultsDirectory}, LogFile={LogFile}",
                 finalSnapshot.Processed, finalSnapshot.Valid, finalSnapshot.Invalid, finalSnapshot.InvalidDisposable,
-                finalSnapshot.InvalidMissingMx, finalSnapshot.InvalidFormat);
-            logger.LogInformation("Log file located at {LogFile}", logFileContext.FilePath);
+                finalSnapshot.InvalidMissingMx, finalSnapshot.InvalidFormat, paths.ResultsDirectory,
+                logFileContext.FilePath);
 
             return ExitCodes.Success;
         }
