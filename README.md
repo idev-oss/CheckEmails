@@ -66,6 +66,18 @@ Filenames to look for on the Releases page:
 
 No installation required — just unzip and run.
 
+### Running on macOS
+
+On macOS, you might need to grant the application permission to run because it's not signed with an Apple Developer ID.
+
+1.  **Run from Terminal**: Open the Terminal and run the application. You'll see a security warning, and the OS will block it.
+2.  **Allow in Settings**:
+    *   Go to **Apple menu  → System Settings → Privacy & Security**.
+    *   Scroll down to the security section.
+    *   You will see a message like: *"“checkemails” was blocked from use because it is not from an identified developer."*
+    *   Click the **"Open Anyway"** button.
+3.  **Run Again**: Run the application from the Terminal again. It should now work as expected.
+
 ### Verifying downloads
 
 Each release includes platform-specific ZIP archives along with integrity and signature files:
@@ -258,6 +270,18 @@ The list is automatically downloaded and cached. Use `-r` or `--refresh-disposab
 - macOS: `checkemails-<TAG>-osx-arm64.zip`
 
 Установка не требуется — распакуйте архив и запустите.
+
+### Запуск в macOS
+
+В macOS может потребоваться разрешить запуск приложения, так как оно не подписано идентификатором разработчика Apple.
+
+1.  **Запустите из Терминала**: Откройте Терминал и запустите приложение. Вы увидите предупреждение безопасности, и ОС заблокирует его.
+2.  **Разрешите в Настройках**:
+    *   Перейдите в **меню Apple  → Системные настройки → Конфиденциальность и безопасность**.
+    *   Пролистайте вниз до раздела безопасности.
+    *   Вы увидите сообщение вида: *«ПО „checkemails“ было заблокировано, так как оно от неустановленного разработчика»*.
+    *   Нажмите кнопку **«Подтвердить вход»** или **"Открыть всё равно"**.
+3.  **Запустите снова**: Запустите приложение из Терминала еще раз. Теперь оно должно работать как положено.
 
 ### Проверка загрузок
 
