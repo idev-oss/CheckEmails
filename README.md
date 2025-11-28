@@ -6,7 +6,7 @@
 
 A command-line tool for validating email addresses in bulk. This program allows you to check email addresses for several parameters. While this is not a 100% guarantee of a valid email, it helps to exclude clearly bad email addresses from your lists. It checks email format, detects disposable (temporary) email domains, and verifies MX records for domains.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build status](https://github.com/idev-oss/CheckEmails/actions/workflows/release-aot.yml/badge.svg)](https://github.com/idev-oss/CheckEmails/actions/workflows/release-aot.yml)
 
 ---
 
@@ -54,15 +54,17 @@ The program performs three types of validation:
 
 ### Installation
 
-Download the appropriate executable for your operating system:
+Download from the Latest Release page and pick the ZIP for your OS. Inside the archive you will get the executable (`checkemails.exe` on Windows, `checkemails` on Linux/macOS).
 
-| Platform | File |
-|----------|------|
-| Windows  | `checkemails.exe` |
-| Linux    | `checkemails` |
-| macOS    | `checkemails` |
+[Download from Latest Release (Windows x64, Linux x64, macOS ARM64)](https://github.com/idev-oss/CheckEmails/releases/latest)
 
-No installation required — just download and run.
+Filenames to look for on the Releases page:
+
+- Windows: `checkemails-<TAG>-win-x64.zip`
+- Linux: `checkemails-<TAG>-linux-x64.zip`
+- macOS: `checkemails-<TAG>-osx-arm64.zip`
+
+No installation required — just unzip and run.
 
 ### Verifying downloads
 
@@ -245,15 +247,17 @@ The list is automatically downloaded and cached. Use `-r` or `--refresh-disposab
 
 ### Установка
 
-Скачайте исполняемый файл для вашей операционной системы:
+Скачайте архив с страницы последнего релиза и выберите ZIP для вашей ОС. Внутри архива — исполняемый файл (`checkemails.exe` для Windows, `checkemails` для Linux/macOS).
 
-| Платформа | Файл |
-|-----------|------|
-| Windows   | `checkemails.exe` |
-| Linux     | `checkemails` |
-| macOS     | `checkemails` |
+[Скачать последнюю версию (Windows x64, Linux x64, macOS ARM64)](https://github.com/idev-oss/CheckEmails/releases/latest)
 
-Установка не требуется — просто скачайте и запустите.
+Имена файлов на странице релизов:
+
+- Windows: `checkemails-<TAG>-win-x64.zip`
+- Linux: `checkemails-<TAG>-linux-x64.zip`
+- macOS: `checkemails-<TAG>-osx-arm64.zip`
+
+Установка не требуется — распакуйте архив и запустите.
 
 ### Проверка загрузок
 
