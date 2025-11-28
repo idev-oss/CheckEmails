@@ -1,0 +1,161 @@
+﻿name: Build AOT single-file binaries (Windows, Linux, macOS)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*', 'V*' ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Publish ${{ matrix.rid }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            shell: pwsh
+          - os: ubuntu-latest
+            rid: linux-x64
+            shell: bash
+          - os: macos-latest
+            rid: osx-arm64
+            shell: bash
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK (uses global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'global.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Linux prerequisites for NativeAOT
+        if: startsWith(matrix.rid, 'linux-')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang lld zlib1g-dev
+
+      - name: Restore
+        run: dotnet restore CheckEmails/CheckEmails.csproj --nologo
+
+      - name: Publish (AOT, single-file, self-contained)
+        run: dotnet publish CheckEmails/CheckEmails.csproj -c Release -r ${{ matrix.rid }} -p:PublishSingleFile=true -p:SelfContained=true --nologo -o out/${{ matrix.rid }}
+
+      - name: Rename artifact (Windows)
+        if: startsWith(matrix.rid, 'win-')
+        run: |
+          $src = "out/${{ matrix.rid }}/checkemails.exe"
+          $dst = "out/${{ matrix.rid }}/checkemails-${{ matrix.rid }}.exe"
+          if (Test-Path $src) { Rename-Item -Path $src -NewName (Split-Path -Leaf $dst) } else { throw "File not found: $src" }
+
+      - name: Rename artifact (Unix)
+        if: !startsWith(matrix.rid, 'win-')
+        run: |
+          src="out/${{ matrix.rid }}/checkemails"
+          dst="out/${{ matrix.rid }}/checkemails-${{ matrix.rid }}"
+          [ -f "$src" ] && mv "$src" "$dst" || { echo "File not found: $src"; exit 1; }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkemails-${{ matrix.rid }}
+          path: |
+            out/${{ matrix.rid }}/checkemails-${{ matrix.rid }}*
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release and attach assets
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: checkemails-*
+          merge-multiple: true
+          path: dist
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Package artifacts into ZIPs
+        run: |
+          set -euo pipefail
+          mkdir -p release pkg
+          TAG_NAME="${GITHUB_REF_NAME}"
+          rm -f pkg/* || true
+
+          # Windows: put checkemails.exe inside the ZIP
+          if [ -f "dist/checkemails-win-x64.exe" ]; then
+            cp "dist/checkemails-win-x64.exe" "pkg/checkemails.exe"
+            zip -j "release/checkemails-${TAG_NAME}-win-x64.zip" "pkg/checkemails.exe"
+          fi
+
+          # Linux: put checkemails (no extension) inside the ZIP
+          if [ -f "dist/checkemails-linux-x64" ]; then
+            cp "dist/checkemails-linux-x64" "pkg/checkemails"
+            chmod +x "pkg/checkemails" || true
+            zip -j "release/checkemails-${TAG_NAME}-linux-x64.zip" "pkg/checkemails"
+          fi
+
+          # macOS (ARM64): put checkemails (no extension) inside the ZIP
+          if [ -f "dist/checkemails-osx-arm64" ]; then
+            cp "dist/checkemails-osx-arm64" "pkg/checkemails"
+            chmod +x "pkg/checkemails" || true
+            zip -j "release/checkemails-${TAG_NAME}-osx-arm64.zip" "pkg/checkemails"
+          fi
+
+          rm -f pkg/* || true
+
+      - name: Generate SHA256 checksums
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in release/*.zip; do
+            sha256sum "$f" > "$f.sha256"
+          done
+
+      - name: Sign ZIPs with Cosign (keyless via OIDC)
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in release/*.zip; do
+            cosign sign-blob --yes --output-signature "$f.sig" --output-certificate "$f.pem" "$f"
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/**
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
