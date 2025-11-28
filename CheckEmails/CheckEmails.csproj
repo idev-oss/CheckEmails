@@ -10,6 +10,7 @@
         <LangVersion>default</LangVersion>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <RuntimeIdentifiers>win-x64;linux-x64;osx-arm64</RuntimeIdentifiers>
+        <ApplicationIcon>checkemails.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">

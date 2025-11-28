@@ -1,4 +1,8 @@
-﻿# CheckEmails
+﻿<p align="center">
+  <img src="docs/assets/checkemails.png" alt="CheckEmails" width="200"/>
+</p>
+
+# CheckEmails
 
 A command-line tool for validating email addresses in bulk. This program allows you to check email addresses for several parameters. While this is not a 100% guarantee of a valid email, it helps to exclude clearly bad email addresses from your lists. It checks email format, detects disposable (temporary) email domains, and verifies MX records for domains.
 
